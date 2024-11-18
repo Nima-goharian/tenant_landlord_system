@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+<body>
+    <div class="profile-container">
+        <h2>Edit Profile</h2>
+
+        <form action="/tenant-dashboard/profile/update" method="POST">
+            <!-- Display Name as an editable field -->
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="<%= userInfo.name %>" required>
+
+            <!-- Display Email as a non-editable field -->
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="<%= userInfo.email %>" readonly>
+
+            <!-- Role as an editable dropdown -->
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="tenant" <%= userInfo.role === 'tenant' ? 'selected' : '' %>>Tenant</option>
+                <option value="landlord" <%= userInfo.role === 'landlord' ? 'selected' : '' %>>Landlord</option>
+            </select>
+
+            <!-- Display Account Creation Date as a non-editable field -->
+            <label for="created_at">Account Created At:</label>
+            <input type="text" id="created_at" name="created_at" value="<%= new Date(userInfo.created_at).toLocaleDateString() %>" readonly>
+
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Property Management Services</p>
+    </footer>
+</body>
+</html>
