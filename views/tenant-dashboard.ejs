@@ -1,0 +1,71 @@
+<%- include('partials/header') %>
+
+<body>
+    <div class="dashboard-container">
+        <!-- First Row: Navigation Links -->
+        <div class="dashboard-menu">
+            <ul>
+                <li><a href="/tenant-dashboard/profile">Profile Management</a></li>
+                <li><a href="/tenant-dashboard/pay-rent">Pay Rent</a></li>
+                <li><a href="/tenant-dashboard/mailbox">Mailbox</a></li>
+                <li><a href="/tenant-dashboard/properties">properties</a></li>
+                <li><a href="/tenant-dashboard/my-applications">My Applications</a></li> 
+                <li><a href="/tenant-dashboard/download-documents">Download Documents</a></li>
+            </ul>
+        </div>
+
+        <!-- Second Row: 3 Columns (Profile, Payment History, Mailbox) -->
+        <div class="dashboard-grid">
+            <!-- First Column: User Info -->
+            <div class="dashboard-column">
+                <h2>User Info</h2>
+                <p>Name: <%= user.name %></p>
+                <p>Email: <%= user.email %></p>
+                <p>Role: <%= user.role %></p>
+                <p>Account created at : <%=user.created_at%></p>
+            </div>
+
+            <!-- Second Column: Payment History -->
+            <div class="dashboard-column">
+                <h2>Payment History</h2>
+                <% if (payments.length > 0) { %>
+                    <ul>
+                        <% payments.forEach(payment => { %>
+                            <li>
+                                <strong>Amount:</strong> $<%= payment.amount %>
+                                <strong>Date:</strong> <%= payment.payment_date %>
+                                <strong>Service:</strong> <%= payment.service %>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>No payment history available</p>
+                <% } %>
+            </div>
+
+            <!-- Third Column: Mailbox Info -->
+            <div class="dashboard-column dashboard-mailbox">
+                <h2>Mailbox</h2>
+                <% if (mailbox.length > 0) { %>
+                    <ul class="mailbox-list">
+                        <% mailbox.forEach(message => { %>
+                            <li>
+                                <strong>From:</strong> <%= message.sender_id === user.id ? 'You' : 'Landlord' %><br>
+                                <strong>Subject:</strong> <%= message.subject %><br>
+                                <strong>Date:</strong> <%= new Date(message.sent_at).toLocaleDateString() %><br>
+                                <p><%= message.message_content.slice(0, 100) %>... <a href="/tenant-dashboard/mailbox">Read More</a></p>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>No messages in the mailbox.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Property Management Services</p>
+    </footer>
+</body>
+</html>
