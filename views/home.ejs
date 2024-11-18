@@ -1,0 +1,191 @@
+<%- include('partials/header') %>
+<body>
+
+    <!-- Main Grid Container -->
+    <div id="success-message" class="success-message" style="display: none;">
+        Your message was sent successfully!
+    </div>
+    <div class="grid-container">
+
+        <!-- Row 1: Header Section (Now a Flexbox) -->
+        <header class="row1">
+            <div class="header-content">
+                <img src="/images/logo-png.jpg" alt="YQR Residencies Logo" class="logo">
+                <div class="header-text">
+                    <h1>YQR Residencies</h1>
+                    <h3>Find Your Next Home <br>Connect with Tenants Easily</h3>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#contact">Contact us</a></li>
+                        <li><a href="#about">About us</a></li>
+                        <li><a href="/resident-login">Join us</a></li>
+                    </ul>
+                </nav>
+                
+            </div>
+        </header>
+
+        <!-- Row 2: Property Listings Section -->
+        <h2>Available Properties</h2>
+        <section id="listings" class="row2">
+            <!-- Properties will be injected here -->
+        </section>
+      
+        <div class="see-more">
+            <a href="/resident-login">Log in to see more properties</a>
+        </div>
+ 
+
+        <!-- Row 3: Contact Us Section -->
+        <section id="contact" class="row3">
+            <div class="form-wrapper">
+            <form id="form" class="form" method="Post" action="/send-email">
+            <div class="form-field">
+            <input class="form-font-regular" type="text" name="name" id="name" placeholder="Enter your full name…" minlength="1" maxlength="100" required="">
+
+            <label for="name" class="form-font-semibold">Full Name</label>
+          </div>
+
+          <div class="form-field">
+            <input class="form-font-regular" type="email" name="email" id="email" placeholder="Enter your email address…" minlength="6" maxlength="100" required="">
+
+            <label for="email" class="form-font-semibold">Email Address</label>
+          </div>
+
+          
+
+          <div class="form-field">
+            <input class="form-font-regular" type="text" name="subject" id="subject" placeholder="Enter a subject…" minlength="2" maxlength="200" required="">
+
+            <label for="subject" class="form-font-semibold">Subject</label>
+          </div>
+
+          
+            <div class="form-field">
+              <div class="field-select">
+                <select class="form-font-regular" name="category" id="category" data-selected="false" onchange="this.setAttribute('data-selected', 'true')" required="">
+                  <option value="" disabled="" selected="">Select a category…</option>
+
+                  
+                    <option value="Product Questions (New Customer)">Product Questions (New Customer)</option>
+                  
+                    <option value="Product Support (Existing Customer)">Product Support (Existing Customer)</option>
+                  
+                    <option value="Feedback / Feature Request">Feedback</option>
+                  
+                    <option value="Advertising / Press Inquiries">Advertising </option>
+                  
+                    <option value="Business Inquiries">Business Inquiries</option>
+                  
+                    <option value="General Questions">General Questions</option>
+                  
+                    <option value="Report Abuse / Rights Infringement">Report Abuse </option>
+                  
+                </select>
+              </div>
+
+              <label for="category" class="form-font-semibold">Category</label>
+            </div>
+          
+
+          
+
+          <div class="form-field form-field--spaced">
+            <textarea class="form-font-regular" name="message" id="message" rows="4" cols="10" placeholder="Enter your message…" minlength="40" maxlength="2000"  required=""></textarea>
+
+            <label for="message" class="form-font-semibold">Message</label>
+
+            <legend><span id="message_characters">0</span> / 40 characters minimum</legend>
+          </div>
+
+          
+
+          <button class="button"
+    name="complete" 
+    id="send" 
+    type="submit">
+    Send Message
+</button>
+        </form>      
+    </div>
+
+            <div class="map">
+               
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2542.19159827291!2d-104.59103232311939!3d50.4189017715862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x531ea0856ffa18b9%3A0x6fcd95572120e058!2s3737%20Wascana%20Pkwy%2C%20Regina%2C%20SK%20S4S%207K5!5e0!3m2!1sen!2sca!4v1729377887088!5m2!1sen!2sca"  loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </section>
+
+        <!-- Row 4: About Us Section -->
+        <section id="about" class="row4">
+            <h2>About Us</h2>
+            <p>At YQR Residencies, we are dedicated to connecting tenants with their ideal homes and providing landlords with an efficient way to manage their properties. Whether you're looking for your next residence or seeking reliable tenants, we make the process seamless and transparent.</p>
+            <p>Our team consists of dedicated professionals with backgrounds in property management, technology, and customer service. Together, we are committed to making your rental experience as smooth as possible.</p>
+        </section>
+
+        <!-- Row 5: Footer Section -->
+        <footer class="row5">
+            <p>&copy; 2024 Property Management Services</p>
+        </footer>
+    </div>
+
+    <script>
+  fetch('/properties')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    const propertyContainer = document.getElementById('listings');
+    propertyContainer.innerHTML = ''; // Clear any existing content
+
+    data.forEach((property, index) => {
+      const imageSrc = property.image || 'path/to/placeholder-image.jpg';
+
+      const propertyCard = `
+        <div class="property">
+          <img src="${imageSrc}" alt="Property Image">
+          <h3>${property.address}</h3>
+          <p>Price: $${property.price}</p>
+          <p>Bedrooms: ${property.bedrooms} | Bathrooms: ${property.bathrooms}</p>
+          <a href="/resident-login" class="apply-link">Apply for this property</a>
+        </div>
+      `;
+      propertyContainer.innerHTML += propertyCard;
+
+      if ((index + 1) % 3 === 0) {
+        propertyContainer.innerHTML += '<div class="clearfix"></div>';
+      }
+    });
+  })
+  .catch(err => console.error('Fetch error:', err));
+
+
+    
+// Function to get query parameter
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+// Check if there's a 'success=true' in the URL
+if (getQueryParam('success') === 'true') {
+    const successMessage = document.getElementById('success-message');
+    successMessage.style.display = 'block'; // Show the success message
+
+    // Fade out the message after 3 seconds
+    setTimeout(() => {
+        successMessage.style.transition = 'opacity 1s';
+        successMessage.style.opacity = '0';
+        
+        // After fading out, hide the element
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 1000); // 1 second for the fade-out effect
+    }, 3000); // 3 seconds before starting the fade-out
+}
+
+    </script>
+</body>
