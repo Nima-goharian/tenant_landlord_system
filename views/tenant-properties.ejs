@@ -1,0 +1,28 @@
+<%- include('partials/header') %>
+<body>
+  <div class="properties-container">
+    <h2>Available Properties</h2>
+    <% if (properties.length > 0) { %>
+      <div class="properties-grid">
+        <% properties.forEach(property => { %>
+          <div class="property-card">
+            <h3><%= property.address %></h3>
+            <p>Price: $<%= property.price %></p>
+            <p>Bedrooms: <%= property.bedrooms %></p>
+            <p>Bathrooms: <%= property.bathrooms %></p>
+            <% if (property.image) { %>
+              <img src="data:image/jpeg;base64,<%= property.image.toString('base64') %>" alt="Property Image">
+            <% } else { %>
+              <p>No image available</p>
+            <% } %>
+            <form action="/properties/<%= property.id %>/apply" method="GET">
+              <button type="submit" class="button">Apply</button>
+            </form>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p>No properties available at the moment.</p>
+    <% } %>
+  </div>
+</body>
