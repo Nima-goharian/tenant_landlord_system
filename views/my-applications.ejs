@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+<body>
+  <div class="applications-container">
+    <h2>My Applications</h2>
+    <% if (applications.length > 0) { %>
+      <ul>
+        <% applications.forEach(application => { %>
+          <li class="application-item">
+            <h3>Property at <%= application.address %></h3>
+            <p><strong>Application Date:</strong> <%= new Date(application.application_date).toLocaleDateString() %></p>
+            <p><strong>Status:</strong> <%= application.status %></p>
+            <p><strong>Contact Number:</strong> <%= application.contact_number %></p>
+            <p><strong>Full Name:</strong> <%= application.full_name %></p>
+          </li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p>No applications submitted yet.</p>
+    <% } %>
+  </div>
+  <footer>
+    <p>&copy; 2024 Property Management Services</p>
+  </footer>
+</body>
+</html>
