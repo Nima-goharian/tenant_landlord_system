@@ -1,0 +1,70 @@
+/* Dark background for the entire page */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #ffffff; /* White text color for readability */
+}
+
+/* Form container styling */
+#payment-form {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Label styling */
+#payment-form label {
+    display: block;
+    margin-top: 15px;
+    font-size: 1rem;
+    color: whitesmoke;
+    font-weight: bold;
+}
+
+/* Input field styling */
+#payment-form input[type="text"],
+#payment-form input[type="email"],
+#payment-form input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background-color: #121212;
+    color: #ffffff;
+    border: 1px solid #555;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Button styling */
+#payment-form button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    color: whitesmoke;
+    border: 2px solid pink; /* Pink border */
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#payment-form button:hover {
+    background-color: pink;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    #payment-form {
+        padding: 15px;
+    }
+
+    #payment-form button {
+        font-size: 1rem;
+    }
+}

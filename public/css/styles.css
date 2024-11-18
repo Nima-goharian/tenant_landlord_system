@@ -1,0 +1,327 @@
+/* Dark background and grid layout styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Darkish background for the entire page */
+    color: #fff;
+}
+
+/* Main container grid layout */
+.grid-container {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto; /* Define rows for each section */
+    grid-gap: 20px;
+    padding: 20px;
+}
+
+/* Row 1: Header as Flexbox */
+.row1 {
+    background-color: #1a1a1a; /* Slightly lighter dark background for the header */
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Align the header text (centered between logo and navigation) */
+.header-text {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.header-text h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header-text h3 {
+    margin-top: 5px;
+    font-size: 16px;
+}
+
+/* Navigation and buttons on the right */
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0 ;
+    margin: 0;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: whitesmoke;
+    text-decoration: none;
+    font-size: 1rem;
+    border-style: solid;
+    border-color: pink;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.login-options {
+    margin-left: 20px;
+}
+.login-options button
+{
+    
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: none;
+
+}
+
+.login-options button a {
+    
+
+    color: whitesmoke;
+    text-decoration: none;
+    font-size: 1rem;
+    border-style: solid;
+    border-color: pink;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* Logo styles */
+.logo {
+    width: 100px;
+    height: auto;
+    border-style: solid;
+    border-color: white;
+    border-radius: 50%;
+}
+
+/* Row 2: Property Listings */
+.row2 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 properties per row */
+    gap: 20px;
+}
+
+.property {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.property img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.apply-link {
+    color: whitesmoke;
+    text-decoration: none;
+    font-size: 1rem;
+    border-style: solid;
+    border-color: pink;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.clearfix {
+    clear: both;
+}
+
+.see-more {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.see-more a {
+    color: whitesmoke;
+    text-decoration: none;
+    font-size: 1rem;
+    border-style: solid;
+    border-color: pink;
+    border-radius: 5px;
+    padding: 5px 5px;}
+/* Row 3 : contatct us */
+.row3 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Form on the left, map on the right */
+    gap: 20px;
+    padding: 20px; /* Add some padding for space around the section */
+    margin: 20px 0; /* Optional: Spacing around the section */
+}
+/* .form-wrapper {
+    
+    padding: 20px;
+    
+} */
+.form-field {
+
+    margin-bottom: 50px; /* Spacing between form fields */
+    position:relative;
+}
+
+.form input,
+.form textarea,
+.form select {
+    background-color: transparent;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form label {
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    background-color: transparent;
+    padding: 0 5px;
+    font-size: 14px;
+    color:whitesmoke;
+}
+.form-font-regular {
+    font-family: Arial, sans-serif;
+    color: whitesmoke;
+    
+}
+
+.form-font-semibold {
+    font-weight: bold;
+}
+
+/* Styling the select box */
+.field-select select {
+    appearance: none;
+    padding: 10px;
+    background-color: transparent;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Button styles */
+.button {
+    color: whitesmoke;
+    text-decoration: none;
+    font-size: 1rem;
+    border-style: solid;
+    border-color: pink;
+    border-radius: 5px;
+    padding: 5px 5px;
+    background-color: transparent;
+
+}
+
+
+
+
+
+.map {
+
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    display: flex;
+    justify-content: center; /* Center the map content */
+    align-items: center; /* Center vertically */
+}
+
+.map iframe {
+    border: none;
+    width: 100%;
+    height: 100%; /* Adjust the height as needed */
+    border-radius: 8px; /* Rounded corners for the map */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .row3 {
+        grid-template-columns: 1fr; /* Stack form and map vertically on smaller screens */
+    }
+
+    .map iframe {
+        height: 200px; /* Adjust height for smaller screens */
+    }
+}
+
+
+.row4 {
+    padding: 40px 20px;             /* Padding around the section */
+    border-radius: 8px;             /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    max-width: 800px;               /* Maximum width for better readability */
+    margin: 0 auto;                 /* Center the section on the page */
+    text-align: center;             /* Center align the text */
+}
+
+/* Heading style */
+.row4 h2 {
+    font-size: 32px;                /* Larger font size for the heading */
+    color: whitesmoke;                    /* Dark color for the heading */
+    margin-bottom: 20px;            /* Spacing below the heading */
+}
+
+/* Paragraph style */
+.row4 p {
+    font-size: 18px;                /* Slightly larger font for readability */
+    color: whitesmoke;                    /* Lighter color for the paragraph text */
+    
+    
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .row4 {
+        padding: 20px 10px;         /* Reduce padding for smaller screens */
+    }
+    
+    .row4 h2 {
+        font-size: 28px;            /* Adjust heading size on smaller screens */
+    }
+    
+    .row4 p {
+        font-size: 16px;            /* Adjust paragraph font size on smaller screens */
+    }
+}
+.row5{
+    border-radius: 8px;             /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    max-width: 800px;               /* Maximum width for better readability */
+    margin: 0 auto;                 /* Center the section on the page */
+    text-align: center; 
+
+}
+.success-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #28a745; /* Green color for success */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+    transition: opacity 1s ease-out;
+    z-index: 1000; /* Make sure it's on top of other elements */
+}
+
+
+
+
