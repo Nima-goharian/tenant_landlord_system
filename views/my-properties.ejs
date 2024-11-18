@@ -1,0 +1,76 @@
+<%- include('partials/header') %>
+<body style="background-color: #121212; color: whitesmoke;">
+    <div class="my-properties-container">
+        <h2>My Properties</h2>
+        <% if (properties.length > 0) { %>
+            <div class="properties-grid">
+                <% properties.forEach((property, index) => { %>
+                    <div class="property-card">
+                        <h3>Property <%= index + 1 %></h3>
+                        <p><strong>Address:</strong> <%= property.address %></p>
+                        <p><strong>Price:</strong> $<%= property.price %></p>
+                        <p><strong>Bedrooms:</strong> <%= property.bedrooms %></p>
+                        <p><strong>Bathrooms:</strong> <%= property.bathrooms %></p>
+                      
+                        <% if (property.images && property.images.length > 0) { %>
+                            <div class="property-images" id="property-images-<%= index %>">
+                                <% property.images.forEach((image, imgIndex) => { %>
+                                  <img
+                                    src="data:image/jpeg;base64,<%= image %>"
+                                    alt="Property Image <%= imgIndex + 1 %>"
+                                    class="property-image"
+                                    data-img-index="<%= imgIndex %>"
+                                    <% if (imgIndex > 0) { %> style="display: none;" <% } %> <!-- Hide all except the first image -->
+                                  />
+                                <% }) %>
+                                <button class="prev" onclick="showPrevImage(<%= index %>)">&#10094;</button>
+                                <button class="next" onclick="showNextImage(<%= index %>)">&#10095;</button>
+                              </div>
+                        <% } else { %>
+                          <p>No images available</p>
+                        <% } %>
+                      
+                        <!-- Delete Button -->
+                        <form action="/landlord-dashboard/delete-property" method="POST" onsubmit="return confirm('Are you sure you want to delete this property?');">
+                          <input type="hidden" name="propertyId" value="<%= property.id %>" />
+                          <button type="submit" class="delete-button">Delete Property</button>
+                        </form>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p>No properties posted yet.</p>
+        <% } %>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Property Management Services</p>
+    </footer>
+
+    <script>
+        function showNextImage(propertyIndex) {
+    const container = document.getElementById(`property-images-${propertyIndex}`);
+    const images = container.querySelectorAll('.property-image');
+    let currentIndex = Array.from(images).findIndex(img => img.style.display !== 'none');
+
+    if (currentIndex !== -1) {
+      images[currentIndex].style.display = 'none';
+      currentIndex = (currentIndex + 1) % images.length;
+      images[currentIndex].style.display = 'block';
+    }
+  }
+
+  function showPrevImage(propertyIndex) {
+    const container = document.getElementById(`property-images-${propertyIndex}`);
+    const images = container.querySelectorAll('.property-image');
+    let currentIndex = Array.from(images).findIndex(img => img.style.display !== 'none');
+
+    if (currentIndex !== -1) {
+      images[currentIndex].style.display = 'none';
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      images[currentIndex].style.display = 'block';
+    }
+  }
+      </script>
+</body>
+</html>
