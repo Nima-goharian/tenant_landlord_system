@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+<body>
+    <div class="compose-message-container">
+        <h2>Compose New Message</h2>
+
+        <!-- Display an error message if provided -->
+        <% if (typeof error !== 'undefined') { %>
+            <div class="error-message">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+
+        <form action="/tenant-dashboard/mailbox/send" method="POST">
+            <label for="recipient">Select Landlord:</label>
+            <% if (landlord) { %>
+                <select id="recipient" name="receiver_id" required>
+                    <option value="<%= landlord.id %>"><%= landlord.name %> (<%= landlord.email %>)</option>
+                </select>
+            <% } else { %>
+                <p>No landlord found for your account.</p>
+            <% } %>
+
+            <label for="subject">Subject:</label>
+            <select id="subject" name="subject" required>
+                <option value="Request for Inspection">Request for Inspection</option>
+                <option value="Maintenance Request">Maintenance Request</option>
+                <option value="Maintenance Request">Facility usage</option>
+                <option value="Payment Inquiry">Payment Inquiry</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="message_content">Message:</label>
+            <textarea id="message_content" name="message_content" rows="5" required></textarea>
+
+            <button type="submit">Send Message</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Property Management Services</p>
+    </footer>
+</body>
+</html>
