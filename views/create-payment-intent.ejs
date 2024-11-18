@@ -1,0 +1,75 @@
+<%- include('partials/header') %>
+<head>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<form id="payment-form">
+    <label for="customer_email">Email:</label>
+    <input type="email" id="customer_email" name="customer_email" required>
+
+    <label for="card_type">Card Type:</label>
+    <input type="text" id="card_type" name="card_type" required>
+
+    <label for="card_holder_name">Card Holder Name:</label>
+    <input type="text" id="card_holder_name" name="card_holder_name" required>
+
+    <label for="card_number">Card Number:</label>
+    <input type="text" id="card_number" name="card_number" required>
+
+    <label for="expiryMonth">Expiry Month:</label>
+    <input type="text" id="expiryMonth" name="expiryMonth" required>
+
+    <label for="expiryYear">Expiry Year:</label>
+    <input type="text" id="expiryYear" name="expiryYear" required>
+
+    <label for="cvv">CVV:</label>
+    <input type="text" id="cvv" name="cvv" required>
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" required>
+
+    <label for="currency">Currency:</label>
+    <input type="text" id="currency" name="currency" required>
+
+    <button type="submit">Submit Payment</button>
+</form>
+<script>
+    document.getElementById('payment-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const data = {
+        app_name: "SS PAyments",
+        service: "Pay Rent",
+        customer_email: document.getElementById('customer_email').value,
+        card_type: document.getElementById('card_type').value,
+        card_holder_name: document.getElementById('card_holder_name').value,
+        card_number: document.getElementById('card_number').value,
+        expiryMonth: document.getElementById('expiryMonth').value,
+        expiryYear: document.getElementById('expiryYear').value,
+        cvv: document.getElementById('cvv').value,
+        amount: document.getElementById('amount').value,
+        currency: document.getElementById('currency').value,
+    };
+
+    try {
+        const response = await fetch('http://localhost:5100/api/v1/payment/card', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Redirect to tenant dashboard on successful payment without alert
+            window.location.href = '/tenant-dashboard';
+        } else {
+            document.getElementById('payment-message').textContent = `Payment failed: ${result.error}`;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+
+</script>
+
