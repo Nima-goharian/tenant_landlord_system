@@ -605,6 +605,77 @@ app.get("/tenant-dashboard/download-documents", (req, res) => {
     cssFile: "mailbox.css",
   });
 });
+// landlord dashboard route
+app.get("/landlord-dashboard", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const landlordId = req.user.id;
+
+  try {
+    // Fetch tenants associated with this landlord
+    const tenants = await db.query(
+      `SELECT u.name, u.email
+         FROM users u
+         JOIN tenant_landlord tl ON u.id = tl.tenant_id
+         WHERE tl.landlord_id = $1`,
+      [landlordId]
+    );
+    const tenantEmails = tenants.rows.map((tenant) => tenant.email);
+
+    const paymentResponse = await axios.get(
+      "http://localhost:5100/api/v1/payment/card"
+    );
+    let payments = paymentResponse.data.success
+      ? paymentResponse.data.data.data
+      : [];
+
+    // Add payment_date to each payment record
+    payments = payments.map((payment) => ({
+      ...payment,
+      payment_date: new Date().toLocaleDateString(), // Or a specific date if available
+      customer_email: payment.customer_email, // Ensure this field is provided by the API
+    }));
+
+    // Fetch mailbox messages related to the landlord
+    const mailboxQuery = `
+      SELECT 
+          m.sender_id, 
+          m.receiver_id, 
+          m.subject, 
+          m.message_content, 
+          m.sent_at, 
+          sender.email AS sender_email,
+          sender.name AS sender_name,
+          receiver.name AS receiver_name,
+          receiver.email AS receiver_email
+      FROM 
+          mailbox m
+      JOIN 
+          users sender ON m.sender_id = sender.id
+      JOIN 
+          users receiver ON m.receiver_id = receiver.id
+      WHERE 
+          m.receiver_id = $1
+      ORDER BY 
+          m.sent_at DESC
+  `;
+    const mailboxResult = await db.query(mailboxQuery, [landlordId]);
+
+    res.render("landlord-dashboard", {
+      title: "Landlord Dashboard",
+      cssFile: "landlord-dashboard.css",
+      tenants: tenants.rows,
+      payments: payments, // Pass filtered payment data to the template
+      mailbox: mailboxResult.rows,
+      user: req.user,
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/resident-login");
+  }
+});
 // Home page
 app.get("/", (req, res) => {
   res.render("home", { title: "home", cssFile: "styles.css" });
