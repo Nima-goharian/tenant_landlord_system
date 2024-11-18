@@ -676,6 +676,85 @@ app.get("/landlord-dashboard", async (req, res) => {
     res.redirect("/resident-login");
   }
 });
+// add tenats to a landlord
+
+app.get("/landlord-dashboard/add-tenant", (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+  res.render("add-tenant", {
+    title: "Add Tenant",
+    cssFile: "add-tenant.css",
+    error: null, // Pass error as null initially
+  });
+});
+
+// Adding tenant for the landlord
+app.post("/landlord-dashboard/add-tenant", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const landlordId = req.user.id;
+  const { tenantEmail } = req.body;
+
+  try {
+    // Check if tenant exists
+    const tenantResult = await db.query(
+      "SELECT id FROM users WHERE email = $1 AND role = 'tenant'",
+      [tenantEmail]
+    );
+    if (tenantResult.rows.length === 0) {
+      return res.render("add-tenant", {
+        error: "Tenant not found.",
+        title: "Add Tenant",
+        cssFile: "add-tenant.css", // Ensure you have a CSS file named accordingly
+      });
+    }
+
+    const tenantId = tenantResult.rows[0].id;
+
+    // Insert into tenant_landlord table
+    await db.query(
+      "INSERT INTO tenant_landlord (landlord_id, tenant_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+      [landlordId, tenantId]
+    );
+
+    res.redirect("/landlord-dashboard"); // Redirect back to the landlord dashboard or show success message
+  } catch (err) {
+    console.error(err);
+    res.render("add-tenant", {
+      error: "Tenant not found.",
+      title: "Add Tenant",
+      cssFile: "add-tenant.css", // Ensure you have a CSS file named accordingly
+    });
+  }
+});
+
+// GET route for displaying the landlord profile
+app.get("/landlord-dashboard/profile", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  try {
+    const landlordId = req.user.id;
+    const userQuery =
+      "SELECT name, email, role, created_at FROM users WHERE id = $1";
+    const userInfo = await db.query(userQuery, [landlordId]);
+
+    res.render("landlord-profile", {
+      title: "Landlord Profile Management",
+      cssFile: "landlord-profile.css",
+      user: userInfo.rows[0],
+      error: null,
+    });
+  } catch (err) {
+    console.error("Error fetching landlord profile:", err);
+    res.redirect("/landlord-dashboard");
+  }
+});
+
 // Home page
 app.get("/", (req, res) => {
   res.render("home", { title: "home", cssFile: "styles.css" });
