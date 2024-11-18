@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+<body>
+    <div class="add-tenant-container">
+        <h2>Add Tenant</h2>
+        <% if (error) { %>
+            <div class="error-message">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+       
+
+        <form action="/landlord-dashboard/add-tenant" method="POST">
+            <label for="tenantEmail">Tenant's Email:</label>
+            <input type="email" id="tenantEmail" name="tenantEmail" placeholder="Enter tenant's email" required>
+            
+            <button type="submit" class="button">Add Tenant</button>
+        </form>
+    </div>
+</body>
+</html>
