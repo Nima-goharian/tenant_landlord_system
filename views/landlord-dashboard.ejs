@@ -1,0 +1,94 @@
+<%- include('partials/header') %>
+<body>
+    <div class="dashboard-container">
+        <h2>Landlord Dashboard</h2>
+
+        <!-- Navigation Menu -->
+        <div class="dashboard-menu">
+            <ul>
+                <li><a href="/landlord-dashboard/profile">Profile Management</a></li>
+                <li><a href="/landlord-dashboard/add-property">Add Property</a></li>
+                <li><a href="/landlord-dashboard/mailbox">Mailbox</a></li>
+                <li><a href="/landlord-dashboard/applications">Rental Applications</a></li>
+                <li><a href="/landlord-dashboard/add-tenant" class="button">Add Tenant</a></li>
+                <li><a href="/landlord-dashboard/my-properties">My Properties</a></li>
+            </ul>
+        </div>
+
+        <!-- Dashboard Sections -->
+        <div class="dashboard-grid">
+            <!-- First Column: Landlord Info and Tenants -->
+            <div class="dashboard-column">
+                <h2>Landlord Info</h2>
+                <p>Name: <%= user.name %></p>
+                <p>Email: <%= user.email %></p>
+                <p>Role: <%= user.role %></p>
+                <p>Account created at: <%= new Date(user.created_at).toLocaleDateString() %></p>
+
+                <!-- Tenants Section -->
+                <h2>Your Tenants</h2>
+                <% if (tenants.length > 0) { %>
+                    <ul>
+                        <% tenants.forEach(tenant => { %>
+                            <li>
+                                <strong>Name:</strong> <%= tenant.name %><br>
+                                <strong>Email:</strong> <%= tenant.email %><br>
+                                <strong>Account created at:</strong> <%= new Date(tenant.created_at).toLocaleDateString() %>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>You have no tenants associated with your account.</p>
+                <% } %>
+            </div>
+
+            <!-- Second Column: Payment History -->
+            <div class="dashboard-column">
+                <h2>Payment History</h2>
+                <% if (payments.length > 0) { %>
+                    <ul>
+                        <% payments.forEach(payment => { %>
+                            <li>
+                                <strong>Amount:</strong> $<%= payment.amount %><br>
+                                <strong>Date:</strong> <%= payment.payment_date %><br>
+                                <strong>Payee Email:</strong> <%= payment.customer_email %><br>
+                                <strong>Service:</strong> <%= payment.service %>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>No payment history available.</p>
+                <% } %>
+            </div>
+
+            <!-- Third Column: Mailbox -->
+            <div class="dashboard-column dashboard-mailbox">
+                <h2>Mailbox</h2>
+                <% if (mailbox.length > 0) { %>
+                    <ul class="mailbox-list">
+                        <% mailbox.forEach(message => { %>
+                            <li>
+                                <% if (message.sender_id === user.id) { %>
+                                    <strong>From:</strong> You<br>
+                                    <strong>To:</strong> <%= message.receiver_name %> (<%= message.receiver_email %>)<br>
+                                <% } else { %>
+                                    <strong>From:</strong> <%= message.sender_email %><br>
+                                <% } %>
+                                <strong>Subject:</strong> <%= message.subject %><br>
+                                <strong>Date:</strong> <%= new Date(message.sent_at).toLocaleDateString() %><br>
+                                <p><%= message.message_content.slice(0, 100) %>... <a href="/landlord-dashboard/mailbox">Read More</a></p>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>No messages in the mailbox.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Property Management Services</p>
+    </footer>
+</body>
+</html>
