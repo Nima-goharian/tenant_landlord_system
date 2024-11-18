@@ -42,3 +42,72 @@ const db = new pg.Client({
   port: process.env.PG_PORT,
 });
 db.connect();
+// Home page
+app.get("/", (req, res) => {
+  res.render("home", { title: "home", cssFile: "styles.css" });
+});
+
+app.get("/resident-login", (req, res) => {
+  res.render("resident-login", {
+    title: "resident login",
+    cssFile: "style-login.css",
+  });
+});
+
+app.get("/rental-application", (req, res) => {
+  res.render("rental-application", { title: "Application for rental" });
+});
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+// Fetch properties for the front end
+app.get("/properties", async (req, res) => {
+  try {
+    const properties = await db.query(`SELECT * FROM properties LIMIT 6`);
+    // console.log(properties.rows);
+    res.json(properties.rows); // Return the data in JSON format
+  } catch (err) {
+    console.error("Server error:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Contact us form handler
+app.post("/send-email", (req, res) => {
+  const { name, email, subject, category, message } = req.body;
+  // Create a transporter for sending emails
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+      user: process.env.CONTACT_US_EMAIL,
+      pass: process.env.CONTACT_US_PASSWORD,
+    },
+  });
+  const mailOptions = {
+    from: email,
+    to: process.env.CONTACT_US_EMAIL,
+    subject: `New Contact Form Submission:${category} - ${subject}`,
+    text: `You have a new contact form submission: Name: ${name}
+              Email: ${email}
+              Subject: ${subject}
+              Category: ${category}
+              Message: ${message}`,
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+      res.status(500).send("Error sending email");
+    } else {
+      console.log("Email sent: " + info.response);
+      return res.redirect("/?success=true");
+    }
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
