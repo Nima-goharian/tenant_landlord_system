@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+<body>
+    <div class="document-download-container">
+        <h2>Download Documents</h2>
+        <ul class="document-list">
+            <% documents.forEach(doc => { %>
+                <li>
+                    <a href="<%= doc.url %>" target="_blank" download>
+                        <%= doc.name %>
+                    </a>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+</body>
