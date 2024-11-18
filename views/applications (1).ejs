@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+<body>
+  <div class="applications-container">
+    <h2>Rental Applications</h2>
+    <% if (applications.length > 0) { %>
+      <ul>
+        <% applications.forEach(application => { %>
+          <li class="application-item">
+            <h3>Property: <%= application.address %></h3>
+            <p><strong>Applicant Name:</strong> <%= application.full_name %></p>
+            <p><strong>Email:</strong> <%= application.email %></p>
+            <p><strong>Contact Number:</strong> <%= application.contact_number %></p>
+            <p><strong>Employer:</strong> <%= application.employer_name %></p>
+            <p><strong>Job Title:</strong> <%= application.job_title %></p>
+            <p><strong>Monthly Income:</strong> $<%= application.monthly_income %></p>
+            <p><strong>Number of Occupants:</strong> <%= application.number_of_occupants %></p>
+            <p><strong>Pets:</strong> <%= application.pets %></p>
+            <p><strong>Application Date:</strong> <%= new Date(application.application_date).toLocaleDateString() %></p>
+            <p><strong>Status:</strong> <%= application.status %></p>
+
+            <form action="/landlord-dashboard/applications/decision" method="POST">
+              <input type="hidden" name="application_id" value="<%= application.application_id %>">
+              <button type="submit" name="decision" value="approved" class="button">Approve</button>
+              <button type="submit" name="decision" value="rejected" class="button">Reject</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p>No applications available at the moment.</p>
+    <% } %>
+  </div>
+  <footer>
+    <p>&copy; 2024 Property Management Services</p>
+  </footer>
+</body>
+</html>
