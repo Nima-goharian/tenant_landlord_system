@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+<body>
+    <div class="mailbox-container">
+        <% if (isSentView) { %>
+            <h2>Sent Messages</h2>
+        <% } else { %>
+            <h2>Inbox</h2>
+        <% } %>
+
+        <!-- Compose New Message Button -->
+        <% if (user.role === 'landlord') { %>
+            <a href="/landlord-dashboard/mailbox/new" class="button">Compose New Message</a>
+            <a href="/landlord-dashboard/mailbox/sent" class="button">Sent Messages</a> <!-- Button for Sent Messages -->
+            <a href="/landlord-dashboard/mailbox" class="button">Inbox</a> <!-- Button to go back to Inbox -->
+        <% } else if (user.role === 'tenant') { %>
+            <a href="/tenant-dashboard/mailbox/new" class="button">Compose New Message</a>
+            <a href="/tenant-dashboard/mailbox/sent" class="button">Sent Messages</a> <!-- Button for Sent Messages -->
+            <a href="/tenant-dashboard/mailbox" class="button">Inbox</a> <!-- Button to go back to Inbox -->
+        <% } %>
+
+        <!-- Display messages -->
+        <% if (mailbox.length > 0) { %>
+            <ul class="message-list">
+                <% mailbox.forEach((message, index) => { %> <!-- Added index for better uniqueness -->
+                    <li class="message-item">
+                        <% if (isSentView) { %>
+                            <p><strong>To:</strong> <%= message.receiver_email %></p>
+                        <% } else { %>
+                            <p><strong>From:</strong> <%= message.sender_email %></p>
+                        <% } %>
+                        <p><strong>Subject:</strong> <%= message.subject %></p>
+                        <p><strong>Date:</strong> <%= new Date(message.sent_at).toLocaleDateString() %></p>
+                        <p><strong>Message:</strong> 
+                            <%= message.message_content.slice(0, 100) %>...
+                            <a href="#" id="readMoreLink-<%= message.id %>" onclick="toggleFullMessage('<%= message.id %>')">Read More</a>
+                        </p>
+                        <p id="fullMessage-<%= message.id %>" style="display: none;"><%= message.message_content %></p>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <% if (isSentView) { %>
+                <p>No sent messages available.</p>
+            <% } else { %>
+                <p>No messages in your inbox.</p>
+            <% } %>
+        <% } %>
+    </div>
+    <footer>
+        <p>&copy; 2024 Property Management Services</p>
+    </footer>
+</body>
+</html>
+<script>
+    function toggleFullMessage(id) {
+        const fullMessage = document.getElementById(`fullMessage-${id}`);
+        const link = document.getElementById(`readMoreLink-${id}`);
+        if (fullMessage.style.display === 'none' || fullMessage.style.display === '') {
+            fullMessage.style.display = 'block';
+            link.innerText = 'Show Less';
+        } else {
+            fullMessage.style.display = 'none';
+            link.innerText = 'Read More';
+        }
+    }
+</script>
