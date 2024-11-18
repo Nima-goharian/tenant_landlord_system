@@ -754,7 +754,336 @@ app.get("/landlord-dashboard/profile", async (req, res) => {
     res.redirect("/landlord-dashboard");
   }
 });
+// POST route for updating the landlord profile
+app.post("/landlord-dashboard/profile/update", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
 
+  const landlordId = req.user.id;
+  const { name, role } = req.body;
+
+  try {
+    const updateQuery = "UPDATE users SET name = $1, role = $2 WHERE id = $3";
+    await db.query(updateQuery, [name, role, landlordId]);
+
+    res.redirect("/landlord-dashboard");
+  } catch (err) {
+    console.error("Error updating landlord profile:", err);
+    res.render("landlord-profile", {
+      title: "Landlord Profile Management",
+      cssFile: "landlord-profile.css",
+      user: req.user,
+      error: "An error occurred while updating the profile. Please try again.",
+    });
+  }
+});
+
+// GET route for displaying the Add Property page
+app.get("/landlord-dashboard/add-property", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  res.render("add-property", {
+    title: "Add Property",
+    cssFile: "add-property.css",
+    user: req.user,
+    error: null,
+  });
+});
+
+// POST route for adding a new property
+// Route to handle property addition with image upload
+app.post(
+  "/landlord-dashboard/add-property",
+  upload.array("propertyImages"),
+  async (req, res) => {
+    const { address, price, bedrooms, bathrooms } = req.body;
+    const images = req.files; // Array of image files
+    const imagesBase64 = images.map((file) => file.buffer.toString("base64")); // Convert buffer to base64 strings
+    const imagesJson = JSON.stringify(imagesBase64); // Convert array to JSON string
+
+    // Assuming landlord_id is obtained from the authenticated user's session
+    const landlord_id = req.user.id; // Adjust this as per your authentication setup
+
+    try {
+      await db.query(
+        `INSERT INTO properties (landlord_id, address, price, bedrooms, bathrooms, images) VALUES ($1, $2, $3, $4, $5, $6)`,
+        [landlord_id, address, price, bedrooms, bathrooms, imagesJson]
+      );
+      return res.redirect("/landlord-dashboard");
+    } catch (err) {
+      console.error("Error adding property:", err);
+      res.status(500).send("Error adding property");
+    }
+  }
+);
+// My property tab
+app.get("/landlord-dashboard/my-properties", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  try {
+    const landlordId = req.user.id;
+    const propertiesQuery = "SELECT * FROM properties WHERE landlord_id = $1";
+    const propertiesResult = await db.query(propertiesQuery, [landlordId]);
+
+    const properties = propertiesResult.rows.map((property) => {
+      if (property.images) {
+        property.images = JSON.parse(property.images); // Parse images stored as JSON
+      }
+      return property;
+    });
+
+    res.render("my-properties", {
+      title: "My Properties",
+      cssFile: "my-properties.css",
+      properties: properties,
+      error: null,
+    });
+  } catch (err) {
+    console.error("Error fetching properties:", err);
+    res.status(500).send("Error fetching properties");
+  }
+});
+
+// Deleting a property
+app.post("/landlord-dashboard/delete-property", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const propertyId = req.body.propertyId;
+
+  try {
+    // Delete the property record from the database
+    await db.query(
+      `DELETE FROM properties WHERE id = $1 AND landlord_id = $2`,
+      [propertyId, req.user.id]
+    );
+
+    res.redirect("/landlord-dashboard/my-properties");
+  } catch (err) {
+    console.error("Error deleting property:", err);
+    res.status(500).send("Error deleting property");
+  }
+});
+// Mail box for the landlord
+app.get("/landlord-dashboard/mailbox", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const landlordId = req.user.id;
+
+  try {
+    const mailboxQuery = `
+        SELECT m.sender_id, m.receiver_id, m.subject, m.message_content, m.sent_at, sender.email AS sender_email
+        FROM mailbox m
+        JOIN users sender ON m.sender_id = sender.id
+        WHERE m.receiver_id = $1
+        ORDER BY m.sent_at DESC
+      `;
+    const mailboxResult = await db.query(mailboxQuery, [landlordId]);
+
+    res.render("mailbox", {
+      title: "Inbox",
+      cssFile: "mailbox.css",
+      mailbox: mailboxResult.rows,
+      user: req.user,
+      isSentView: false, // This flag differentiates between sent and received views
+    });
+  } catch (err) {
+    console.error("Error fetching mailbox:", err);
+    res.status(500).send("Error fetching mailbox");
+  }
+});
+// Messages that landlord has sent
+app.get("/landlord-dashboard/mailbox/sent", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const landlordId = req.user.id;
+
+  try {
+    const sentMessagesQuery = `
+        SELECT m.sender_id, m.receiver_id, m.subject, m.message_content, m.sent_at, receiver.email AS receiver_email
+        FROM mailbox m
+        JOIN users receiver ON m.receiver_id = receiver.id
+        WHERE m.sender_id = $1
+        ORDER BY m.sent_at DESC
+      `;
+    const sentMessagesResult = await db.query(sentMessagesQuery, [landlordId]);
+
+    res.render("mailbox", {
+      title: "Sent Messages",
+      cssFile: "mailbox.css",
+      mailbox: sentMessagesResult.rows,
+      user: req.user,
+      isSentView: true, // This flag differentiates between sent and received views
+    });
+  } catch (err) {
+    console.error("Error fetching sent messages:", err);
+    res.status(500).send("Error fetching sent messages");
+  }
+});
+// Composing new email for the landlord
+app.get("/landlord-dashboard/mailbox/new", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  try {
+    // Fetch tenants related to the landlord
+    const landlordId = req.user.id;
+    const tenantsResult = await db.query(
+      `SELECT u.id, u.name, u.email 
+         FROM users u
+         JOIN tenant_landlord tl ON u.id = tl.tenant_id
+         WHERE tl.landlord_id = $1`,
+      [landlordId]
+    );
+
+    res.render("compose-message-landlord", {
+      title: "Compose Message",
+      cssFile: "compose-message-landlord.css",
+      user: req.user,
+      tenants: tenantsResult.rows,
+    });
+  } catch (err) {
+    console.error("Error fetching tenants:", err);
+    res.redirect("/landlord-dashboard");
+  }
+});
+// Landlord email sending
+app.post("/landlord-dashboard/mailbox/send", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const { recipient, subject, message_content } = req.body;
+  const senderId = req.user.id;
+
+  try {
+    if (recipient.includes("all")) {
+      // Fetch all tenant IDs associated with the landlord
+      const tenantIdsResult = await db.query(
+        `SELECT tenant_id FROM tenant_landlord WHERE landlord_id = $1`,
+        [senderId]
+      );
+
+      for (const row of tenantIdsResult.rows) {
+        await db.query(
+          `INSERT INTO mailbox (sender_id, receiver_id, subject, message_content, sent_at)
+             VALUES ($1, $2, $3, $4, NOW())`,
+          [senderId, row.tenant_id, subject, message_content]
+        );
+      }
+    } else {
+      // Send to selected tenants
+      for (const tenantId of recipient) {
+        await db.query(
+          `INSERT INTO mailbox (sender_id, receiver_id, subject, message_content, sent_at)
+             VALUES ($1, $2, $3, $4, NOW())`,
+          [senderId, tenantId, subject, message_content]
+        );
+      }
+    }
+
+    res.redirect("/landlord-dashboard/mailbox");
+  } catch (err) {
+    console.error("Error sending message:", err);
+    res.render("compose-message", {
+      title: "Compose Message",
+      cssFile: "compose-message.css",
+      user: req.user,
+      tenants: [], // or fetch tenants again if needed
+      error: "Error sending message. Please try again.",
+    });
+  }
+});
+
+app.get("/landlord-dashboard/applications", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const landlordId = req.user.id;
+
+  try {
+    const applicationsQuery = `
+        SELECT pa.application_id, pa.property_id, pa.full_name, pa.contact_number, pa.email, pa.employer_name, pa.job_title,
+               pa.monthly_income, pa.length_of_stay, pa.number_of_occupants, pa.pets, pa.emergency_contact, pa.emergency_contact_number,
+               pa.application_date, pa.status, p.address
+        FROM property_applications pa
+        JOIN properties p ON pa.property_id = p.id
+        WHERE p.landlord_id = $1
+        ORDER BY pa.application_date DESC
+      `;
+    const applications = await db.query(applicationsQuery, [landlordId]);
+
+    res.render("applications", {
+      title: "Rental Applications",
+      cssFile: "applications.css",
+      applications: applications.rows,
+      user: req.user,
+    });
+  } catch (err) {
+    console.error("Error fetching applications:", err);
+    res.status(500).send("Error fetching applications");
+  }
+});
+
+app.post("/landlord-dashboard/applications/decision", async (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== "landlord") {
+    return res.redirect("/resident-login");
+  }
+
+  const { application_id, decision } = req.body;
+  const status = decision === "approved" ? "Approved" : "Rejected";
+  const messageContent =
+    decision === "approved"
+      ? "Congratulations! Your application has been approved."
+      : "Unfortunately, your application has been rejected.";
+
+  try {
+    // Update the application status
+    await db.query(
+      "UPDATE property_applications SET status = $1 WHERE application_id = $2",
+      [status, application_id]
+    );
+
+    // Retrieve the applicant's email
+    const result = await db.query(
+      "SELECT u.id FROM users u JOIN property_applications pa ON u.id = pa.tenant_id WHERE pa.application_id = $1",
+      [application_id]
+    );
+
+    const applicantId = result.rows[0].id;
+
+    if (applicantId) {
+      // Create and send a message to the applicant's mailbox
+      await db.query(
+        "INSERT INTO mailbox (receiver_id, subject, message_content, sent_at) VALUES ($1, $2, $3, NOW())",
+        [applicantId, "Application Status Update", messageContent]
+      );
+    }
+
+    // Delete the application
+    await db.query(
+      "DELETE FROM property_applications WHERE application_id = $1",
+      [application_id]
+    );
+
+    res.redirect("/landlord-dashboard/applications");
+  } catch (err) {
+    console.error("Error processing application decision:", err);
+    res.status(500).send("Error processing application decision");
+  }
+});
 // Home page
 app.get("/", (req, res) => {
   res.render("home", { title: "home", cssFile: "styles.css" });
